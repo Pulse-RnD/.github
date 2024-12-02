@@ -1,0 +1,32 @@
+# File path: .github/.github/workflows/python-quality.yml
+name: Python Code Quality
+
+on:
+  workflow_call:  # Makes this workflow reusable
+  pull_request:
+    paths:
+      - '**.py'
+
+jobs:
+  quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mypy black types-all
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          
+      - name: Run black
+        run: black --check --diff .
+        
+      - name: Run mypy
+        run: mypy --strict .
